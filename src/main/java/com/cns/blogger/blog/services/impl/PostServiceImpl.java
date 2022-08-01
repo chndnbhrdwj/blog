@@ -10,6 +10,7 @@ import com.cns.blogger.blog.repositories.CategoryRepo;
 import com.cns.blogger.blog.repositories.PostRepo;
 import com.cns.blogger.blog.repositories.UserRepo;
 import com.cns.blogger.blog.services.PostService;
+import javafx.geometry.Pos;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -92,21 +93,49 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public List<PostDto> getAllPostByCategory(Integer categoryId) {
-        Category category = this.categoryRepo.findById(categoryId)
-                .orElseThrow(() -> new ResourceNotFoundException("Category", "Id", categoryId));
-        return this.postRepo.findByCategory(category)
-                .stream().map(p -> this.modelMapper.map(p, PostDto.class))
+    public PostResponse getAllPostByCategory(Integer categoryId, Integer pageNumber, Integer pageSize) {
+        PostResponse postResponse = new PostResponse();
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+
+        Page<Post> allPost = this.postRepo.findAll(pageable);
+
+        List<PostDto> content = allPost
+                .stream()
+                .filter(p -> p.getCategory().getId() == categoryId)
+                .map(p -> this.modelMapper.map(p, PostDto.class))
                 .collect(Collectors.toList());
+
+        postResponse.setContent(content);
+        postResponse.setLastPage(allPost.isLast());
+        postResponse.setTotalRecords(allPost.getNumberOfElements());
+        postResponse.setTotalPages(allPost.getTotalPages());
+        postResponse.setPageNumber(allPost.getNumber());
+        postResponse.setPageSize(allPost.getSize());
+
+        return postResponse;
     }
 
     @Override
-    public List<PostDto> getAllPostByUser(Integer userId) {
-        User user = this.userRepo.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "Id", userId));
-        return this.postRepo.findByUser(user)
-                .stream().map(p -> this.modelMapper.map(p, PostDto.class))
+    public PostResponse getAllPostByUser(Integer userId, Integer pageNumber, Integer pageSize) {
+        PostResponse postResponse = new PostResponse();
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+
+        Page<Post> allPost = this.postRepo.findAll(pageable);
+
+        List<PostDto> content = allPost
+                .stream()
+                .filter(p -> p.getUser().getId() == userId)
+                .map(p -> this.modelMapper.map(p, PostDto.class))
                 .collect(Collectors.toList());
+
+        postResponse.setContent(content);
+        postResponse.setLastPage(allPost.isLast());
+        postResponse.setTotalRecords(allPost.getNumberOfElements());
+        postResponse.setTotalPages(allPost.getTotalPages());
+        postResponse.setPageNumber(allPost.getNumber());
+        postResponse.setPageSize(allPost.getSize());
+
+        return postResponse;
     }
 
     @Override
