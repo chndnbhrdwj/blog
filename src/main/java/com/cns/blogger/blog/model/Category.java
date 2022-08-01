@@ -1,5 +1,6 @@
 package com.cns.blogger.blog.model;
 
+import javafx.geometry.Pos;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -7,6 +8,8 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
+import java.util.ArrayList;
+import java.util.List;
 
 @NoArgsConstructor
 @Getter
@@ -16,7 +19,7 @@ import javax.validation.constraints.NotEmpty;
 public class Category {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @Column(name = "title")
@@ -26,4 +29,7 @@ public class Category {
     @Column(name = "description")
     @NotEmpty
     private String categoryDescription;
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "category", fetch = FetchType.LAZY)
+    private List<Post> posts = new ArrayList<>();
 }
