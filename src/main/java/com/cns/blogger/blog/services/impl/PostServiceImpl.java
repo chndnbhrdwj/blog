@@ -5,12 +5,16 @@ import com.cns.blogger.blog.model.Category;
 import com.cns.blogger.blog.model.Post;
 import com.cns.blogger.blog.model.User;
 import com.cns.blogger.blog.payloads.PostDto;
+import com.cns.blogger.blog.payloads.PostResponse;
 import com.cns.blogger.blog.repositories.CategoryRepo;
 import com.cns.blogger.blog.repositories.PostRepo;
 import com.cns.blogger.blog.repositories.UserRepo;
 import com.cns.blogger.blog.services.PostService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -59,7 +63,7 @@ public class PostServiceImpl implements PostService {
     @Override
     public void deletePost(Integer postId) {
         Post post = this.postRepo.findById(postId)
-                .orElseThrow(()-> new ResourceNotFoundException("Post", "Id", postId));
+                .orElseThrow(() -> new ResourceNotFoundException("Post", "Id", postId));
         this.postRepo.delete(post);
     }
 
@@ -69,10 +73,22 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public List<PostDto> getAllPost() {
-        return this.postRepo.findAll()
+    public PostResponse getAllPost(Integer pageNumber, Integer pageSize) {
+        PostResponse postResponse = new PostResponse();
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        Page<Post> posts = this.postRepo.findAll(pageable);
+
+        List<PostDto> content = posts.getContent()
                 .stream().map(p -> this.modelMapper.map(p, PostDto.class))
                 .collect(Collectors.toList());
+
+        postResponse.setContent(content);
+        postResponse.setPageNumber(posts.getNumber());
+        postResponse.setPageSize(posts.getSize());
+        postResponse.setTotalRecords(posts.getNumberOfElements());
+        postResponse.setTotalPages(posts.getTotalPages());
+        postResponse.setLastPage(posts.isLast());
+        return postResponse;
     }
 
     @Override
