@@ -41,8 +41,10 @@ public class PostController {
     @GetMapping("/posts")
     public ResponseEntity<PostResponse> getAllPosts(
             @RequestParam(value = "pageNumber", defaultValue = "0", required = false) Integer pageNumber,
+            @RequestParam(value = "sortBy", defaultValue = "id", required = false) String sortBy,
+            @RequestParam(value = "sortDirectionAsc", defaultValue = "true", required = false) boolean sortDirectionAsc,
             @RequestParam(value = "pageSize", defaultValue = "2", required = false) Integer pageSize) {
-        return ResponseEntity.ok(this.postService.getAllPost(pageNumber, pageSize));
+        return ResponseEntity.ok(this.postService.getAllPost(pageNumber, pageSize, sortBy, sortDirectionAsc));
     }
 
     @GetMapping("/posts/{postId}")
@@ -59,5 +61,15 @@ public class PostController {
     public ResponseEntity<ApiResponse> deletePostsById(@Valid @PathVariable Integer postId) {
         this.postService.deletePost(postId);
         return ResponseEntity.ok(new ApiResponse(String.format("Post with id %s deleted successfully", postId), true));
+    }
+
+    @GetMapping("/posts/search/{searchString}")
+    public ResponseEntity<List<PostDto>> searchPosts(@Valid @PathVariable String searchString) {
+        return ResponseEntity.ok(this.postService.searchPost(searchString));
+    }
+
+    @GetMapping("/posts/search/content/{searchString}")
+    public ResponseEntity<List<PostDto>> searchPostsByQuery(@Valid @PathVariable String searchString) {
+        return ResponseEntity.ok(this.postService.searchPostContent("%"+searchString+"%"));
     }
 }

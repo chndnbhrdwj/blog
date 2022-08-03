@@ -1,7 +1,5 @@
 package com.cns.blogger.blog.services;
 
-
-import com.cns.blogger.blog.model.Post;
 import com.cns.blogger.blog.payloads.PostDto;
 import com.cns.blogger.blog.payloads.PostResponse;
 
@@ -13,10 +11,11 @@ public interface PostService {
     PostDto updatePost(PostDto postDto, Integer postId);
     void deletePost(Integer postId);
     PostDto getPost(Integer postId);
-    PostResponse getAllPost(Integer pageNumber, Integer pageSize);
+    PostResponse getAllPost(Integer pageNumber, Integer pageSize, String sortBy, boolean sortAsc);
     PostResponse getAllPostByCategory(Integer categoryId, Integer pageNumber, Integer pageSize);
     PostResponse getAllPostByUser(Integer userId, Integer pageNumber, Integer pageSize);
-    List<PostDto> searchPost(Integer userId);
+    List<PostDto> searchPost(String searchString);
+    List<PostDto> searchPostContent(String searchString);
 
 
 }
